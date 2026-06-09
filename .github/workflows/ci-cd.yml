@@ -1,0 +1,32 @@
+name: XAUUSD Pipeline CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-verify:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: 'maven'
+
+    - name: Verify Ingestion Service Build
+      run: |
+        cd ingestion-service
+        mvn clean compile -DskipTests
+
+    - name: Verify Analytics Service Build
+      run: |
+        cd analytics-service
+        mvn clean compile -DskipTests
