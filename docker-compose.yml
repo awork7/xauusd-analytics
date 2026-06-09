@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # 1. Apache Kafka (Shifted to host port 9094 to bypass active background broker)
+  kafka:
+    image: apache/kafka:3.7.0
+    container_name: xauusd-kafka
+    ports:
+      - "9094:9094"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,EXTERNAL://localhost:9094
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+  # 2. Redis Cache (For Ultra-low Latency Metrics)
+  redis:
+    image: redis:7.2-alpine
+    container_name: xauusd-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+
+  # 3. Oracle Database (Developer Free Edition)
+  oracle-db:
+    image: container-registry.oracle.com/database/free:latest-lite
+    container_name: xauusd-oracle
+    ports:
+      - "1522:1521"
+    environment:
+      - ORACLE_PWD=YourSecurePassword123
+    volumes:
+      - oracle_data:/opt/oracle/oradata
+
+volumes:
+  oracle_data:

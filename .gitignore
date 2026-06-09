@@ -1,0 +1,20 @@
+﻿# Target build directories
+**/target/
+*.jar
+*.war
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# OS files
+Thumbs.db
+Desktop.ini
+
+# Crash logs
+顶层/logs/
+*.log
